@@ -1,24 +1,17 @@
+import Fuse from "fuse.js";
 import { companyKnowledge } from "./companyKnowledge";
 
+const fuse = new Fuse(companyKnowledge.faqs, {
+  keys: ["keywords"],
+  threshold: 0.4, // lower = stricter
+});
+
 export const getCompanyReply = (message) => {
-  const normalizedMessage = message.toLowerCase().trim();
+  const results = fuse.search(message);
 
-  // Prevent unrelated queries
-  if (
-    normalizedMessage.includes("who won") ||
-    normalizedMessage.includes("prime minister") ||
-    normalizedMessage.includes("weather")
-  ) {
-    return "I can only answer questions related to Surendra Tech.";
+  if (results.length > 0) {
+    return results[0].item.answer;
   }
 
-  for (let faq of companyKnowledge.faqs) {
-    for (let keyword of faq.keywords) {
-      if (normalizedMessage.includes(keyword)) {
-        return faq.answer;
-      }
-    }
-  }
-
-  return "I'm here to help with questions about Surendra Tech. Please ask about our services, pricing, or support.";
+  return "I can only answer questions related to Paarsiv Tech.";
 };
